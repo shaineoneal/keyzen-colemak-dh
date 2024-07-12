@@ -25,6 +25,7 @@ data.word_length = 7;
 data.current_layout = "colemak-dh";
 data.custom_chars = '';
 
+
 CUSTOM_LAYOUT = 'custom';
 
 $(document).ready(function() {
@@ -366,8 +367,22 @@ function showActiveLayoutKeyboard() {
     // Hide all, then show the active.
     $('.keyboard-layout').hide();
     var currentLayout = data.current_layout;
+    var isColored = $('#keeb-color--checkbox').is(':checked');
     // Custom chars have no default layout.
     if (currentLayout != CUSTOM_LAYOUT) {
         $('.keyboard-layout[data-layout="' + currentLayout + '"]').show()
     }
+    if (isColored) {
+        $('.keyboard-layout[data-layout="' + currentLayout + '"]').addClass('color');
+    } else {
+        $('.keyboard-layout[data-layout="' + currentLayout + '"]').removeClass('color');
+    }
+}
+
+
+function render_rigor() {
+    chars = "<span id='rigor-number' onclick='inc_rigor();'>";
+    chars += '' + data.consecutive;
+    chars += '<span>';
+    $('#rigor').html('click to set intensity: ' + chars);
 }
