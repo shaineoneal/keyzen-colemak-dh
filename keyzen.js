@@ -19,36 +19,56 @@ layouts["custom"] = " #=-*_`>![]()1234567890";
 // layouts["norman"] = " ntieosaygjkufrdlw;qbpvmcxz1234567890'\",.!?:;/@$%&#*()_ABCDEFGHIJKLMNOPQRSTUVWXYZ~+-={}|^<>`[]\\";
 // layouts["code-es6"] = " {}',;():.>=</_-|`!?#[]\\+\"@$%&*~^";
 
-data.chars = layouts["colemak-dh"];
+data.chars = layouts["colemak"];
 data.consecutive = 5;
 data.word_length = 7;
-data.current_layout = "colemak-dh";
+data.current_layout = "colemak";
 data.custom_chars = '';
 
 
 CUSTOM_LAYOUT = 'custom';
 
+/**
+ * Executes the provided function when the DOM is fully loaded and ready.
+ */
 $(document).ready(function() {
+    // Check if there is data stored in the local storage
     if (localStorage.data != undefined) {
         load();
+        // Check if the current layout is a custom layout and if custom characters are available
         if (data.current_layout == CUSTOM_LAYOUT && data.custom_chars) {
             data.chars = data.custom_chars;
         }
         render();
     }
     else {
+        // Set the level to 1 if no data is found in local storage
         set_level(1);
     }
+
+    // Attach key press event handler to the document
     $(document).keypress(keyHandler);
 
+    // Display the active layout of the keyboard
     showActiveLayoutKeyboard();
 });
 
-
+/**
+ * Initializes the start time for statistics if it hasn't been set already.
+ * If `start_time` is undefined or null, it sets `start_time` to the current time in seconds.
+ */
 function start_stats() {
     start_time = start_time || Math.floor(new Date().getTime() / 1000);
 }
 
+/**
+ * Updates the statistics including the hit ratio and hits per minute (HPM).
+ * 
+ * This function calculates the hit ratio as a percentage of correct hits
+ * out of the total hits and the hits per minute based on the elapsed time
+ * since the start time. If the hits per minute calculation results in an
+ * infinite value, it is set to zero.
+ */
 function update_stats() {
     if (start_time) {
         var current_time = (Math.floor(new Date().getTime() / 1000));
@@ -62,10 +82,14 @@ function update_stats() {
     }
 }
 
-
+/**
+ * Sets the current level and initializes relevant data.
+ * 
+ * @param {number} l - The level to set.
+ */
 function set_level(l) {
     data.in_a_row = {};
-    for(var i = 0; i < data.chars.length; i++) {
+    for (var i = 0; i < data.chars.length; i++) {
         data.in_a_row[data.chars[i]] = data.consecutive;
     }
     data.in_a_row[data.chars[l]] = 0;
@@ -78,6 +102,11 @@ function set_level(l) {
     render();
 }
 
+/**
+ * Sets the current layout and initializes related data.
+ *
+ * @param {string} l - The name of the layout to set.
+ */
 function set_layout(l) {
     data.current_layout = l
 	data.chars = layouts[l]
@@ -95,7 +124,11 @@ function set_layout(l) {
     showActiveLayoutKeyboard();
 }
 
-
+/**
+ * Handles key press events, updating game statistics and state based on the key pressed.
+ * 
+ * @param {Event} e - The key press event object.
+ */
 function keyHandler(e) {
     start_stats();
 
@@ -104,7 +137,7 @@ function keyHandler(e) {
         e.preventDefault();
     }
     else {
-    	return;
+        return;
     }
     data.keys_hit += key;
     if(key == data.word[data.word_index]) {
@@ -130,6 +163,9 @@ function keyHandler(e) {
     save();
 }
 
+/**
+ * Advances to the next word, updating relevant game state and statistics.
+ */
 function next_word(){
 	if(get_training_chars().length == 0) {
 		level_up();
@@ -144,7 +180,9 @@ function next_word(){
     save();
 }
 
-
+/**
+ * Increases the level by one, if possible, and updates the game state.
+ */
 function level_up() {
     if (data.level + 1 <= data.chars.length - 1) {
         (new Audio('ding.wav')).play();
@@ -153,17 +191,23 @@ function level_up() {
     set_level(l);
 }
 
-
+/**
+ * Saves the current game state to local storage.
+ */
 function save() {
     localStorage.data = JSON.stringify(data);
 }
 
-
+/**
+ * Loads the game state from local storage.
+ */
 function load() {
     data = JSON.parse(localStorage.data);
 }
 
-
+/**
+ * Renders the entire game interface, including layout, level, word, and statistics.
+ */
 function render() {
     render_layout();
     render_level();
@@ -173,6 +217,9 @@ function render() {
     render_stats();
 }
 
+/**
+ * Renders the layout selection interface.
+ */
 function render_layout() {
     var layouts_html = "<span id='layout'>";
     for(var layout in layouts){
@@ -187,6 +234,9 @@ function render_layout() {
     $("#layout").html('click to set layout: ' + layouts_html);
 }
 
+/**
+ * Renders the level selection interface.
+ */
 function render_level() {
     var chars = "<span id='level-chars-wrap'>";
     var level_chars = get_level_chars();
@@ -242,6 +292,9 @@ function render_level() {
     }
 }
 
+/**
+ * Renders the rigor (intensity) setting interface.
+ */
 function render_rigor() {
     chars = "<span id='rigor-number' onclick='inc_rigor();'>";
     chars += '' + data.consecutive;
@@ -249,6 +302,9 @@ function render_rigor() {
     $('#rigor').html('click to set intensity: ' + chars);
 }
 
+/**
+ * Renders the game statistics.
+ */
 function render_stats() {
     $("#stats").text([
         "raw WPM: ", hpm / 5, " ",
@@ -256,6 +312,9 @@ function render_stats() {
     ].join(""));
 }
 
+/**
+ * Increases the rigor (intensity) setting.
+ */
 function inc_rigor() {
     data.consecutive += 1;
     if (data.consecutive > 9) {
@@ -264,7 +323,9 @@ function inc_rigor() {
     render_rigor();
 }
 
-
+/**
+ * Renders the level progress bar.
+ */
 function render_level_bar() {
     training_chars = get_training_chars();
     if(training_chars.length == 0) {
@@ -281,6 +342,9 @@ function render_level_bar() {
 
 }
 
+/**
+ * Renders the current word and the keys hit so far.
+ */
 function render_word() {
     var word = "";
     for (var i = 0; i < data.word.length; i++) {
@@ -299,10 +363,10 @@ function render_word() {
         }
         word += "<span class='" + sclass + "'>";
         if(data.word[i] == " ") {
-            word += "&#9141;"
+            word += "&#9141;";
         }
         else if(data.word[i] == "&") {
-            word += "&amp;"
+            word += "&amp;";
         }
         else {
             word += data.word[i];
@@ -328,7 +392,11 @@ function render_word() {
     $("#word").html(word + "<br>" + keys_hit);
 }
 
-
+/**
+ * Generates a new word based on the current level and training characters.
+ * 
+ * @returns {string} The generated word.
+ */
 function generate_word() {
     word = '';
     for(var i = 0; i < data.word_length; i++) {
@@ -343,11 +411,20 @@ function generate_word() {
     return word;
 }
 
-
+/**
+ * Gets the characters available at the current level.
+ * 
+ * @returns {Array<string>} The characters available at the current level.
+ */
 function get_level_chars() {
     return data.chars.slice(0, data.level + 1).split('');
 }
 
+/**
+ * Gets the characters that are still being trained.
+ * 
+ * @returns {Array<string>} The characters that are still being trained.
+ */
 function get_training_chars() {
     var training_chars = [];
     var level_chars = get_level_chars();
@@ -359,10 +436,19 @@ function get_training_chars() {
     return training_chars;
 }
 
+/**
+ * Chooses a random element from an array.
+ * 
+ * @param {Array} a - The array to choose from.
+ * @returns {*} A random element from the array.
+ */
 function choose(a) {
     return a[Math.floor(Math.random() * a.length)];
 }
 
+/**
+ * Shows the active layout keyboard and applies color settings.
+ */
 function showActiveLayoutKeyboard() {
     // Hide all, then show the active.
     $('.keyboard-layout').hide();
@@ -380,6 +466,9 @@ function showActiveLayoutKeyboard() {
 }
 
 
+/**
+ * Renders the rigor (intensity) setting interface.
+ */
 function render_rigor() {
     chars = "<span id='rigor-number' onclick='inc_rigor();'>";
     chars += '' + data.consecutive;
