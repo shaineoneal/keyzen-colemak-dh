@@ -25,6 +25,8 @@ data.word_length = 7;
 data.current_layout = "colemak";
 data.custom_chars = '';
 
+shift_keys = '~!@#$%^&*()_+{}|:"<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+other_keys = '1234567890`-=[]\\;\',./';
 
 CUSTOM_LAYOUT = 'custom';
 
@@ -132,6 +134,8 @@ function set_layout(l) {
 function keyHandler(e) {
     start_stats();
 
+    $('.key').removeClass('fade-out');
+
     var key = String.fromCharCode(e.which);
     if (data.chars.indexOf(key) > -1){
         e.preventDefault();
@@ -161,6 +165,9 @@ function keyHandler(e) {
 
     render();
     save();
+
+    $('.key').addClass('fade-out');
+    removeFadingAnimation(data.word[data.word_index]); 
 }
 
 /**
@@ -215,6 +222,7 @@ function render() {
     render_level_bar();
     render_rigor();
     render_stats();
+    render_keyboard();
 }
 
 /**
@@ -286,6 +294,8 @@ function render_level() {
             window.data.custom_chars = customCharsProccessed;
             render_level();
             save();
+
+            render_keyboard();
 
             $(document).keypress(keyHandler);
         });
@@ -390,6 +400,7 @@ function render_word() {
     }
     keys_hit += "</span>";
     $("#word").html(word + "<br>" + keys_hit);
+
 }
 
 /**
@@ -399,6 +410,11 @@ function render_word() {
  */
 function generate_word() {
     word = '';
+    
+    $('.key').removeClass('fade-out');
+    $('.key').addClass('fade-out');
+    
+
     for(var i = 0; i < data.word_length; i++) {
         c = choose(get_training_chars());
         if(c != undefined && c != word[word.length-1]) {
@@ -408,6 +424,8 @@ function generate_word() {
             word += choose(get_level_chars());
         }
     }
+    removeFadingAnimation(word[0]); 
+
     return word;
 }
 
@@ -446,6 +464,13 @@ function choose(a) {
     return a[Math.floor(Math.random() * a.length)];
 }
 
+function render_keyboard() {
+    $('.key').removeClass('fade-out');
+    showActiveLayoutKeyboard();
+    $('.key').addClass('fade-out');
+    if(data.word[data.word_index]) removeFadingAnimation(data.word[data.word_index]);
+}
+
 /**
  * Shows the active layout keyboard and applies color settings.
  */
@@ -463,6 +488,8 @@ function showActiveLayoutKeyboard() {
     } else {
         $('.keyboard-layout[data-layout="' + currentLayout + '"]').removeClass('color');
     }
+
+
 }
 
 
@@ -475,3 +502,83 @@ function render_rigor() {
     chars += '<span>';
     $('#rigor').html('click to set intensity: ' + chars);
 }
+
+function removeFadingAnimation(nextKey) {
+    leftIndicator = $('.home-row .left.index:first').text()[0];
+    rightIndicator = $('.home-row .right.index:last').text()[0];
+
+    if (!nextKey) {
+        return;
+    }
+
+    $('.key').addClass('fade-out');
+    // If the key is a space mark...
+    if (nextKey == ' ') {
+        // ...remove fading animation from space key
+        console.log("space");
+        $('.space').removeClass('fade-out');
+    // ...otherwise, if the key is leftIndicator or rightIndicator...
+    } else if (nextKey == leftIndicator || nextKey == rightIndicator) {
+        if (nextKey == leftIndicator) {
+            console.log($('.home-row .left.index:first').text()[0]);
+            $('.home-row .left.index:first').removeClass('fade-out');
+        } else {
+            console.log($('.home-row .right.index:last').text()[0]);
+            $('.home-row .right.index:last').removeClass('fade-out');
+        }
+    // ...otherwise, if the key does not require a shift key...
+    } else if (!shift_keys.includes(nextKey)) {
+        console.log("not in shift keys", nextKey);
+        // Loop through all keys and remove fading animation from the key that matches the next key
+        $('.key').each(function() {
+            if ($(this).text()[0] == nextKey.toLowerCase()) {
+                // all lower case except for indicators
+                
+                console.log("here", $(this).text()[0]);
+                // ;
+                if (other_keys.includes($(this).text()[0]) && $(this).text()[0] == nextKey) {
+                    console.log("here1");
+                    $(this).removeClass('fade-out');
+                    return;
+                } 
+
+
+                if ($(this).text()[0] == nextKey || $(this).text() == nextKey) {
+                    $(this).removeClass('fade-out');
+                } else {
+                    $(this).removeClass('fade-out');
+                    if ($(this).hasClass('left')) {
+                        $('.right.shift').removeClass('fade-out');
+                    } 
+                }
+            } else if ($(this).text()[0] == nextKey) {
+                console.log("not lower case", $(this).text()[0]);
+                $(this).removeClass('fade-out');
+                if ($(this).hasClass('left')) {
+                    $('.right.shift').removeClass('fade-out');
+                } else {
+                    $('.left.shift').removeClass('fade-out');
+                }
+            } else if ($(this).text().includes(nextKey)) {
+                $(this).removeClass('fade-out'); 
+            }
+        });
+    
+    } else {
+        // If the key is special, loop through all keys
+        $('.key').each(function() {
+            
+            if ($(this).text()[0] == nextKey.toLowerCase()) {
+                $(this).removeClass('fade-out'); 
+                if ($(this).hasClass('left')) {
+                    $('.right.shift').removeClass('fade-out');
+                } else {
+                    $('.left.shift').removeClass('fade-out');
+                }
+            } 
+        });
+    }
+    
+}
+
+
