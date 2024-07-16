@@ -24,6 +24,7 @@ data.consecutive = 5;
 data.word_length = 7;
 data.current_layout = "colemak";
 data.custom_chars = '';
+data.keyboard_color = true;
 
 shift_keys = '~!@#$%^&*()_+{}|:"<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 other_keys = '1234567890`-=[]\\;\',./';
@@ -485,11 +486,13 @@ function showActiveLayoutKeyboard() {
     }
     if (isColored) {
         $('.keyboard-layout[data-layout="' + currentLayout + '"]').addClass('color');
+        data.keyboard_color = true;
     } else {
         $('.keyboard-layout[data-layout="' + currentLayout + '"]').removeClass('color');
+        data.keyboard_color = false;
     }
-
-
+    // Remove focus from the checkbox so it doesn't interfere with key presses.
+    $('#keeb-color--checkbox').blur();
 }
 
 
@@ -504,8 +507,12 @@ function render_rigor() {
 }
 
 function removeFadingAnimation(nextKey) {
-    leftIndicator = $('.home-row .left.index:first').text()[0];
-    rightIndicator = $('.home-row .right.index:last').text()[0];
+    leftIndicator = $('.home-row .left.index p').text()[0];
+    rightIndicator = $('.home-row .right.index p').text()[0];
+
+    console.log("leftIndicator", leftIndicator);
+    console.log("rightIndicator", rightIndicator);
+
 
     if (!nextKey) {
         return;
@@ -515,16 +522,17 @@ function removeFadingAnimation(nextKey) {
     // If the key is a space mark...
     if (nextKey == ' ') {
         // ...remove fading animation from space key
-        console.log("space");
+
         $('.space').removeClass('fade-out');
     // ...otherwise, if the key is leftIndicator or rightIndicator...
     } else if (nextKey == leftIndicator || nextKey == rightIndicator) {
         if (nextKey == leftIndicator) {
-            console.log($('.home-row .left.index:first').text()[0]);
-            $('.home-row .left.index:first').removeClass('fade-out');
+
+            $('.left.index:has(.indicator)').removeClass('fade-out');
         } else {
-            console.log($('.home-row .right.index:last').text()[0]);
-            $('.home-row .right.index:last').removeClass('fade-out');
+
+            $('.right.index:has(.indicator)').removeClass('fade-out');
+            
         }
     // ...otherwise, if the key does not require a shift key...
     } else if (!shift_keys.includes(nextKey)) {
@@ -533,9 +541,6 @@ function removeFadingAnimation(nextKey) {
         $('.key').each(function() {
             if ($(this).text()[0] == nextKey.toLowerCase()) {
                 // all lower case except for indicators
-                
-                console.log("here", $(this).text()[0]);
-                // ;
                 if (other_keys.includes($(this).text()[0]) && $(this).text()[0] == nextKey) {
                     console.log("here1");
                     $(this).removeClass('fade-out');
@@ -559,7 +564,7 @@ function removeFadingAnimation(nextKey) {
                 } else {
                     $('.left.shift').removeClass('fade-out');
                 }
-            } else if ($(this).text().includes(nextKey)) {
+            } else if ($(this).text()[1] == nextKey) {
                 $(this).removeClass('fade-out'); 
             }
         });

@@ -17,7 +17,8 @@
 
         <script type="text/javascript">
             $(function() {
-                $('#includeHtml').load('keyboards.html');
+                $('#colemak').load('/keyboards/colemak.html');
+                $('#colemak-dh').load('keyboards/colemak-dh.html');
             });
             $(document).ready(function() {
                 $('body').one('keyup', function() {
@@ -204,6 +205,22 @@
                 }
             }
 
+            #keeb-color {
+                font-size: 16px;
+                position: absolute;
+                bottom: 200px;
+                color: #AAA;
+                font-weight: bold;
+                text-align: right;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-right: auto;
+                margin-left: auto;
+                left: 0;
+                right: 0;
+            }
+
         </style>
     </head>
 
@@ -223,11 +240,8 @@
 
             <!-- GitHub Pages need the `.` to indicate the current directory. -->
             <!-- https://www.elharony.com/images-not-displaying-in-github-pages/ -->
-            <div id="includeHtml" class="keyboard-layout container" data-layout="colemak">
-            </div>
-            <div class="keyboard-layout" data-layout="colemak-dh">
-                <img src="./assets/img/colemak-dh.png" alt="colemak-dh.png">
-            </div>
+            <div id="colemak" class="keyboard-layout container" data-layout="colemak"></div>
+            <div id="colemak-dh" class="keyboard-layout container" data-layout="colemak-dh"></div>
             <div class="keyboard-layout" data-layout="colemak-dhk">
                 <img src="./assets/img/colemak-dhk.png" alt="colemak-dhk.png">
             </div>
@@ -246,18 +260,18 @@
                 </div>
             </div>
 
-           
-
-            <div id='title'>
-                <a href="https://github.com/ranelpadon/keyzen-colemak-dh">Keyzen-Colemak-DH</a>
-            </div>
-<div id="keeb-color">
+            <div id="keeb-color">
                 <label class="keeb-color--label">
                     <p>colored keyboard</p>
                     <input type="checkbox" id="keeb-color--checkbox" onclick="showActiveLayoutKeyboard();" checked>
                     <i class="fa fa-square-o fa-2x"></i><i class="fa fa-check-square-o fa-2x"></i>
                 </label>
             </div> 
+
+            <div id='title'>
+                <a href="https://github.com/ranelpadon/keyzen-colemak-dh">Keyzen-Colemak-DH</a>
+            </div>
+    
             <div id='rigor'>
             </div>
 
